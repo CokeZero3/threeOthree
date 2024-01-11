@@ -22,3 +22,7 @@ logging:
     org.hibernate.SQL: debug
     org.hibernate.type: trace
 
+security:
+  jwt:
+    secret-key: secretKeyExample
+    expire-length: 3600000

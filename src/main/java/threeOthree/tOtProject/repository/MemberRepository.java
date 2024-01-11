@@ -24,16 +24,20 @@ public class MemberRepository {
     }
 
     public List<Member> findMember(Member member) {
-        return em.createQuery("select m from Member m where m.name = :name and m.regNo = :regNo")
+        return em.createQuery("select m from Member m where m.name = :name")
                 .setParameter("name", member.getName())
-                .setParameter("regNo", member.getRegNo())
                 .getResultList();
     }
 
-    public List<Member> login(String userId, String password) {
-        return em.createQuery("select m from Member m where m.userId = :userId and m.password = :password")
+    public List<Member> findId(Member member) {
+        return em.createQuery("select m.id from Member m where m.userId = :userId")
+                .setParameter("userId", member.getUserId())
+                .getResultList();
+    }
+
+    public List<Member> login(String userId) {
+        return em.createQuery("select m from Member m where m.userId = :userId")
                 .setParameter("userId", userId)
-                .setParameter("password", password)
                 .getResultList();
     }
 

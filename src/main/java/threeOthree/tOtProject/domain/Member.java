@@ -1,9 +1,10 @@
 package threeOthree.tOtProject.domain;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
+import javax.persistence.*;
+
 import lombok.Getter;
 import lombok.Setter;
+import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter
@@ -14,4 +15,8 @@ public class  Member{
     private String name;
     private String regNo;
     private String password;
+
+    @Enumerated(EnumType.STRING)
+    @Transient
+    private Role role;
 }
