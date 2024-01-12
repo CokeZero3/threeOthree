@@ -3,6 +3,7 @@ package threeOthree.tOtProject.controller;
 
 import antlr.Token;
 import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import io.jsonwebtoken.Jwts;
 import io.swagger.annotations.ApiOperation;
 import io.swagger.annotations.ApiParam;
 import lombok.RequiredArgsConstructor;
@@ -27,6 +28,9 @@ import threeOthree.tOtProject.service.MemberService;
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.io.IOException;
+import java.util.List;
+import java.util.Map;
 import java.util.logging.Logger;
 
 /**
@@ -70,58 +74,47 @@ public class MemberController {
             @RequestParam(value="userId", required = true) String userId,
             @ApiParam(value="비밀번호",required = true, example = "password")
             @RequestParam(value="password", required = true) String password) {
-        String jwt = "Bearer " + memberService.login(userId, password);
+
+        String jwt = "Bearer JwtToken " + memberService.login(userId, password);
+
         HttpHeaders httpHeaders = new HttpHeaders();
-        httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER, "Bearer " + jwt);
+        httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER, jwt);
 
         return new ResponseEntity<String>(jwt,httpHeaders, HttpStatus.OK);
     }
 
-    @ApiOperation(value="토큰 발급", notes="토큰 기능")
+    @ApiOperation(value="토큰발급확인", notes="토큰 기능")
     @GetMapping("/szs/me")
-    public ResponseEntity<String> token(
+    public ResponseEntity<Boolean> token(
+            @ApiParam(value="토큰",required = true, example = "token")
+            @RequestParam(value="token", required = true) String token){
+
+        boolean validateToken = jwtTokenProvider.validateToken(token);
+        System.out.println("validateToken = " + validateToken);
+        boolean validateToken2 = jwtTokenProvider.validateToken(token);
+        log.info("validateToken2 = " + validateToken2);
+
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER, "Bearer JwtToken " + token);
+
+        return new ResponseEntity<Boolean> (validateToken2, httpHeaders, HttpStatus.OK);
+    }
+
+    @ApiOperation(value="토큰으로 정보 가져오기", notes="토큰 정보 가져오기")
+    @GetMapping("/szs/scrap")
+    public ResponseEntity<Map<String, Object>> tokenScrap(
             @ApiParam(value="토큰",required = true, example = "token")
             @RequestParam(value="token", required = true) String token){
 
         //String tokenAuth = String.valueOf(jwtTokenProvider.getAuthentication(token));
-        String tokenAuth = jwtTokenProvider.getUserPK(token);
-        log.info("tokenAuth = " + tokenAuth);
+        Map<String, Object> tokenInfo = jwtTokenProvider.getUserPKList(token);
+        tokenInfo.replace("regNo", memberService.decrypt((String) tokenInfo.get("regNo")));
+        log.info("tokenInfo = " + tokenInfo);
 
-        boolean validateToken = jwtTokenProvider.validateToken(token);
-        log.info("validateToken = " + validateToken);
-        return new ResponseEntity<String> (tokenAuth, HttpStatus.OK);
-    }
+        HttpHeaders httpHeaders = new HttpHeaders();
+        httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER, "Bearer JwtToken " + token);
 
-    @ApiOperation(value="토큰 발급", notes="토큰 기능")
-    @GetMapping("/szs/me2")
-    public String token(
-            @ApiParam(value="토큰",required = true, example = "token")
-            @RequestParam(value="token", required = true) String token,
-            Model model, HttpServletResponse response,
-            HttpServletRequest req){
-
-        String tokenAuth = jwtTokenProvider.getUserPK(token);
-        log.info("tokenAuth = " + tokenAuth);
-
-        boolean validateToken = jwtTokenProvider.validateToken(token);
-        log.info("validateToken = " + validateToken);
-
-        Cookie cookie = new Cookie("jwtToken", token);
-        log.info("cookie = " + cookie);
-        cookie.setMaxAge(60 * 60);
-        response.addCookie(cookie);
-        log.info("response = " + response);
-
-        String authorization = req.getHeader("Authorization");
-        log.info("authorization"+authorization);
-//        String accessToken = authorization.split("Bearer ")[1];
-//        log.info("accessToken: "+accessToken);
-        String resolveToken = jwtTokenProvider.resolveToken(req);
-        log.info("resolveToken = " + resolveToken);
-
-
-
-        return "";
+        return new ResponseEntity<Map<String, Object>> (tokenInfo, httpHeaders, HttpStatus.OK);
     }
 
 

@@ -1,9 +1,9 @@
 package threeOthree.tOtProject.security.jwt;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import com.nimbusds.jose.crypto.PasswordBasedDecrypter;
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.SecurityException;
+import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,11 +11,17 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
+import org.springframework.security.crypto.factory.PasswordEncoderFactories;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
+import threeOthree.tOtProject.domain.Member;
+import threeOthree.tOtProject.security.config.SecurityConfig;
+import threeOthree.tOtProject.service.MemberService;
 
 import javax.servlet.http.HttpServletRequest;
-import java.util.Base64;
-import java.util.Date;
+import java.security.Key;
+import java.util.*;
 
 @RequiredArgsConstructor
 @Component
@@ -23,12 +29,11 @@ import java.util.Date;
 public class JwtTokenProvider {
 
     @Value("${security.jwt.secret-key}") String secretKey;
-    //private String secretKey = "testSecretKey20240112testSecretKey20240112testSecretKey20240112testSecretKey20240112";
     // 토큰 유효시간 30분
     private long tokenValidTime = 30 * 60 * 1000L;
-
+    private Key key;
     private final UserDetailsService userDetailsService;
-
+    private MemberService memberService;
     // 객체 초기화, secretKey를 Base64로 인코딩
     protected void init() {
         secretKey = Base64.getEncoder().encodeToString(secretKey.getBytes());
@@ -36,8 +41,13 @@ public class JwtTokenProvider {
 
     // JWT 토큰 생성
 //    public String createToken(String userPK, Role roles) {
-    public String createToken(String userPK) {
-        Claims claims = Jwts.claims().setSubject(userPK); // JWT payload에 저장되는 정보 단위
+    public String createToken(Member member) {
+        Claims claims = Jwts.claims().setSubject(member.getName()); // JWT payload에 저장되는 정보 단위
+        log.info("member.getRegNo() 복호화 전: "+ member.getRegNo());
+        String st = member.getRegNo();
+
+        claims.put("regNo", member.getRegNo());
+
         //claims.put("roles", roles); // 정보 저장 (key-value)
         Date now = new Date();
         log.info("secretkey:: "+secretKey);
@@ -56,6 +66,16 @@ public class JwtTokenProvider {
     }
 
     // 토큰에서 회원 정보 추출
+    public Map<String, Object> getUserPKList(String token) {
+        Map<String, Object>  map = new HashMap<>();
+        String name = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
+        String regNo = (String) Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("regNo");
+        log.info("regNo = " + regNo);
+        map.put("regNo", regNo);
+        map.put("name", name);
+
+        return map;
+    }
     public String getUserPK(String token) {
         return Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
     }
@@ -66,7 +86,32 @@ public class JwtTokenProvider {
     }
 
     // 토큰의 유효성 + 만료일자 확인
-    public boolean validateToken(String jwtToken) {
+    /*public boolean validateToken(String jwtToken) {
+        try {
+            Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
+            return !claims.getBody().getExpiration().before(new Date());
+        } catch (Exception e) {
+            return false;
+        }
+    }*/
+    public boolean validateToken(String token) {
+        try {
+            Jwts.parserBuilder().setSigningKey(secretKey).build().parseClaimsJws(token);
+            return true;
+        } catch (SecurityException | MalformedJwtException e) {
+            log.info("잘못된 JWT 서명입니다.");
+        } catch (ExpiredJwtException e) {
+            log.info("만료된 JWT 토큰입니다.");
+        } catch (UnsupportedJwtException e) {
+            log.info("지원되지 않는 JWT 토큰입니다.");
+        } catch (IllegalArgumentException e) {
+            log.info("JWT 토큰이 잘못되었습니다.");
+        }
+        return true;
+    }
+
+    // 토큰의 유효성 + 만료일자 확인
+    public boolean validateToken2(String jwtToken) {
         try {
             Jws<Claims> claims = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(jwtToken);
             return !claims.getBody().getExpiration().before(new Date());
