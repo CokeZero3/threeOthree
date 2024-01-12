@@ -24,5 +24,6 @@ logging:
 
 security:
   jwt:
-    secret-key: secretKeyExample
+    header: Authorization
+    secret-key: threeOthreeTestSecretKeythreeOthreeTestSecretKeythreeOthreeTestSecretKeythreeOthreeTestSecretKey
     expire-length: 3600000

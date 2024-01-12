@@ -1,6 +1,7 @@
 package threeOthree.tOtProject.service;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -19,6 +20,7 @@ import java.util.List;
  * */
 @Service("userDetailsService")
 @RequiredArgsConstructor
+@Slf4j
 public class MemberService {
 
     @Autowired
@@ -34,9 +36,9 @@ public class MemberService {
         validateDuplicateMember(member);  //중복 회원 validation
         validateDuplicateId(member);      //중복 아이디 validation
 
-        System.out.println("3.주민번호 인코딩 전 = " + member.getRegNo());
+        log.info("3.주민번호 인코딩 전 = " + member.getRegNo());
         member.setRegNo(passwordEncoder.encode(member.getRegNo()));
-        System.out.println("4.주민번호 인코딩 후 = " + member.getRegNo());
+        log.info("4.주민번호 인코딩 후 = " + member.getRegNo());
 
         memberRepository.save(member);
         return member;
@@ -52,11 +54,11 @@ public class MemberService {
     //로그인 validation
     public String login(String userId, String password){
         List<Member> loginMember = memberRepository.login(userId);
-        System.out.println("loginMember = " + loginMember.get(0).getPassword());
-        System.out.println("password = " + password);
+        log.info("loginMember = " + loginMember.get(0).getPassword());
+        log.info("password = " + password);
 
         boolean loginChk = checkEncoding(password, loginMember.get(0).getPassword());
-        System.out.println("loginChk = " + loginChk);
+        log.info("loginChk = " + loginChk);
         if(!loginChk){
             throw new IllegalStateException(" 아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n" +
                     "입력하신 내용을 다시 확인해주세요.");
@@ -100,8 +102,8 @@ public class MemberService {
         authListName.add(3, "베지터"); authListRegNo.add(3, "910411-1656116");
         authListName.add(4, "손오공"); authListRegNo.add(4, "820326-2715702");
 
-        System.out.println("Member.getName ::"+member.getName());
-        System.out.println("Member.getRegNo ::"+member.getRegNo());
+        log.info("Member.getName ::"+member.getName());
+        log.info("Member.getRegNo ::"+member.getRegNo());
 
         //회원 가능한 유저 check
         for(int i=0;i<authListName.size();i++){
@@ -111,7 +113,7 @@ public class MemberService {
             }
         }
 
-        System.out.println("check = "+check);
+        log.info("check = "+check);
         if(!check){
             throw new IllegalStateException("허가 명단에 없는 이름과 주민번호입니다.");
         }

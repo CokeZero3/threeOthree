@@ -6,7 +6,6 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import threeOthree.tOtProject.domain.Member;
-import threeOthree.tOtProject.domain.Role;
 import threeOthree.tOtProject.repository.MemberRepository;
 import threeOthree.tOtProject.security.jwt.SecurityUser;
 
@@ -21,11 +20,10 @@ public class SecurityUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = new Member();
         member.setName(username);
-        List<Member> optional = memberRepository.findMember(member);
+        List<Member> optional = memberRepository.findId(member);
         if(!optional.isEmpty()) {
             throw new UsernameNotFoundException(username + " 사용자 없음");
         } else {
-            member.setRole(Role.ROLE_MEMBER);
             return new SecurityUser(member);
         }
 

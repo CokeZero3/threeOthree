@@ -5,23 +5,25 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.stereotype.Component;
 
-import javax.management.relation.Role;
 import javax.servlet.http.HttpServletRequest;
 import java.util.Base64;
 import java.util.Date;
 
 @RequiredArgsConstructor
 @Component
+@Slf4j
 public class JwtTokenProvider {
 
-    private String secretKey = "testSecretKey20230327testSecretKey20230327testSecretKey20230327";
-
+    @Value("${security.jwt.secret-key}") String secretKey;
+    //private String secretKey = "testSecretKey20240112testSecretKey20240112testSecretKey20240112testSecretKey20240112";
     // 토큰 유효시간 30분
     private long tokenValidTime = 30 * 60 * 1000L;
 
@@ -38,6 +40,7 @@ public class JwtTokenProvider {
         Claims claims = Jwts.claims().setSubject(userPK); // JWT payload에 저장되는 정보 단위
         //claims.put("roles", roles); // 정보 저장 (key-value)
         Date now = new Date();
+        log.info("secretkey:: "+secretKey);
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(now)

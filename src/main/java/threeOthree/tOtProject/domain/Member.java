@@ -15,8 +15,4 @@ public class  Member{
     private String name;
     private String regNo;
     private String password;
-
-    @Enumerated(EnumType.STRING)
-    @Transient
-    private Role role;
 }
