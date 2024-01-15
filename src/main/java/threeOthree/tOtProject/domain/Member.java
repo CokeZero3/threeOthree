@@ -9,8 +9,12 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Entity
 @Getter
 @Setter
+@Table(name = "member")
 public class  Member{
-    @Id
+    @Id @GeneratedValue
+    @Column(name = "member_id")
+    private long id;
+    @Column(name="user_id")
     private String userId;
     private String name;
     private String regNo;

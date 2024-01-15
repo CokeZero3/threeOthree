@@ -23,6 +23,7 @@ import threeOthree.tOtProject.domain.Member;
 import threeOthree.tOtProject.security.Service.SecurityUserService;
 import threeOthree.tOtProject.security.jwt.JwtAuthenticationFilter;
 import threeOthree.tOtProject.security.jwt.JwtTokenProvider;
+import threeOthree.tOtProject.service.InfoService;
 import threeOthree.tOtProject.service.MemberService;
 
 import javax.servlet.http.Cookie;
@@ -42,8 +43,10 @@ import java.util.logging.Logger;
 public class MemberController {
 
     private final MemberService memberService;
+    private final InfoService infoService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+
     @ApiOperation(value = "test", notes = "test")
     @PostMapping("/szs/test")
     public ResponseEntity<Integer> add (
@@ -115,6 +118,15 @@ public class MemberController {
         httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER, "Bearer JwtToken " + token);
 
         return new ResponseEntity<Map<String, Object>> (tokenInfo, httpHeaders, HttpStatus.OK);
+    }
+
+    @ApiOperation(value="데이터 저장하기", notes="데이터 저장하기")
+    @GetMapping("/szs/save")
+    public ResponseEntity<String> save(
+            @ApiParam(value="아이디",required = true, example = "userId")
+            @RequestParam(value="userId", required = true) String userId){
+        infoService.saveDummyData(userId);
+        return new ResponseEntity<String>("", HttpStatus.OK);
     }
 
 

@@ -29,11 +29,13 @@ public class MemberRepository {
                 .getResultList();
     }
 
-    public List<Member> findId(Member member) {
+    public List<Member> findById(String userId) {
         return em.createQuery("select m.id from Member m where m.userId = :userId")
-                .setParameter("userId", member.getUserId())
+                .setParameter("userId", userId)
                 .getResultList();
     }
+
+
 
     public List<Member> login(String userId) {
         return em.createQuery("select m from Member m where m.userId = :userId")

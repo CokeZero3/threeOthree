@@ -21,7 +21,7 @@ import java.util.List;
 /**
  * 회원가입 Service
  * */
-@Service("userDetailsService")
+@Service
 @RequiredArgsConstructor
 @Slf4j
 public class MemberService {
@@ -87,7 +87,7 @@ public class MemberService {
 
     //아이디 중복 체크
     public void validateDuplicateId(Member member){
-        List<Member> memberList = memberRepository.findId(member);
+        List<Member> memberList = memberRepository.findById(member.getUserId());
 
         if(!memberList.isEmpty()){
             throw new IllegalStateException("이미 존재하는 아이디입니다.");
