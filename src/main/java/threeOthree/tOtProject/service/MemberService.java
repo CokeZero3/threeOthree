@@ -26,8 +26,11 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final JwtTokenProvider jwtTokenProvider;
     private final InfoService infoService;
+    private final PasswordEncoder passwordEncoder;
+
     @Autowired
     private PasswordUtility utility;
+
     //회원가입
     @Transactional
     public Member join(Member member){
@@ -36,14 +39,12 @@ public class MemberService {
         validateDuplicateMember(member);  //중복 회원 validation
         validateDuplicateId(member);      //중복 아이디 validation
 
-        log.info("3.주민번호 인코딩 전 = " + member.getRegNo());
         member.setRegNo(utility.encrpyt(member.getRegNo()));
-        log.info("3.주민번호 인코딩 후 = " + member.getRegNo());
-        log.info("4.주민번호 디코딩 후 = " + utility.decrypt(member.getRegNo()));
+        //암호화
+        member.setPassword(passwordEncoder.encode(member.getPassword()));
         memberRepository.save(member);
 
         List<Member> memberList = memberRepository.findByUserId(member.getUserId());
-        System.out.println("memberList = " + memberList);
 
         if(!memberList.isEmpty()){
             Member mem = memberList.get(0);
@@ -68,12 +69,12 @@ public class MemberService {
     //로그인 validation
     public String login(String userId, String password){
         List<Member> loginMember = memberRepository.login(userId);
-        log.info("loginMember = " + loginMember.get(0).getPassword());
-        log.info("password = " + password);
+        //log.info("loginMember = " + loginMember.get(0).getPassword());
+        //log.info("password = " + password);
 
         boolean loginChk = utility.checkEncoding(password, loginMember.get(0).getPassword());
-        log.info("loginChk = " + loginChk);
-        if(!loginChk){
+        //log.info("loginChk = " + loginChk);
+        if(!loginChk&&userId.equals(loginMember.get(0).getUserId())){
             throw new IllegalStateException(" 아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n" +
                     "입력하신 내용을 다시 확인해주세요.");
         }
@@ -116,8 +117,8 @@ public class MemberService {
         authListName.add(3, "베지터"); authListRegNo.add(3, "910411-1656116");
         authListName.add(4, "손오공"); authListRegNo.add(4, "820326-2715702");
 
-        log.info("Member.getName ::"+member.getName());
-        log.info("Member.getRegNo ::"+member.getRegNo());
+        //log.info("Member.getName ::"+member.getName());
+        //log.info("Member.getRegNo ::"+member.getRegNo());
 
         //회원 가능한 유저 check
         for(int i=0;i<authListName.size();i++){
@@ -127,7 +128,7 @@ public class MemberService {
             }
         }
 
-        log.info("check = "+check);
+        //log.info("check = "+check);
         if(!check){
             throw new IllegalStateException("허가 명단에 없는 이름과 주민번호입니다.");
         }
