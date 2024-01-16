@@ -28,8 +28,8 @@ UI를 제외하고 간소화된 REST API만 구현하시면 됩니다.
 # 구현
   <<구현한 애플리케이션 설명>>
   1. 회원가입 할 때 Member에 데이터를 저장하면서 성공하면 추가로 이후에 사용할 데이터도 임의로 넣어주도록 설계를 했습니다.
-    - 회원가입은 name, userId, password, regNo, 그리고 id(GenerateValue설정)으로 구성되어 있습니다.
 
+     - 회원가입은 name, userId, password, regNo, 그리고 id(GenerateValue설정)으로 구성되어 있습니다.
     A. 회원가입을 하면서 우선 validation 체크합니다. 순서는 허가된 이름과 주민번호 리스트에서 확인, 중복 회원, 그리고 중복아이디 확인 순으로 합니다.
     B. 양방향 암복호화가 가능한 AesBytesEncryptor로 주민번호를 암호화해서 DB에 저장합니다. 
     C. 비밀번호는 Spring Security PasswordEncoder으로 암호화 해서 데이터베이스에 저장합니다.
