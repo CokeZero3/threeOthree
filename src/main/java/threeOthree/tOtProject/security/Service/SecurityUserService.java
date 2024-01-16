@@ -20,7 +20,7 @@ public class SecurityUserService implements UserDetailsService {
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
         Member member = new Member();
         member.setName(username);
-        List<Member> optional = memberRepository.findById(member.getUserId());
+        List<Member> optional = memberRepository.findByUserId(member.getUserId());
         if(!optional.isEmpty()) {
             throw new UsernameNotFoundException(username + " 사용자 없음");
         } else {

@@ -2,8 +2,10 @@ package threeOthree.tOtProject.domain.info;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import threeOthree.tOtProject.domain.Member;
+import threeOthree.tOtProject.service.MemberService;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -53,11 +55,9 @@ public class MemberInfo {
 
 
     //생성 메서드
-
-    public static MemberInfo dummyData(String userId){
-
+    public static MemberInfo dummyData(Member member){
         MemberInfo memberInfo = new MemberInfo();
-        memberInfo.setUserId(userId);
+        memberInfo.setUserId(member.getUserId());
         memberInfo.setCalcTaxAmount(600000);
         memberInfo.setAppVer("2021112501");
         memberInfo.setCompany("삼쩜삼");
@@ -65,39 +65,50 @@ public class MemberInfo {
         memberInfo.setHostNm("jobis-codetest");
         memberInfo.setWorkerResDt(LocalDateTime.parse("2022-08-16T06:27:35.160789"));
         memberInfo.setWorkerReqDt(LocalDateTime.parse("2022-08-16T06:27:35.160789"));
+        memberInfo.setMember(member);
 
         List<IncomeDeduction> incomeDeductionList = new ArrayList<>();
         IncomeDeduction incomeDeduction = new IncomeDeduction();
         incomeDeduction.setIncomeDiv("보험료");
         incomeDeduction.setAmount(100000);
-        incomeDeductionList.add(0,incomeDeduction);
-        incomeDeduction.setIncomeDiv("교육비");
-        incomeDeduction.setAmount(200000);
-        incomeDeductionList.add(1,incomeDeduction);
-        incomeDeduction.setIncomeDiv("기부금");
-        incomeDeduction.setAmount(150000);
-        incomeDeductionList.add(2,incomeDeduction);
-        incomeDeduction.setIncomeDiv("의료비");
-        incomeDeduction.setAmount(700000);
-        incomeDeductionList.add(3,incomeDeduction);
-        incomeDeduction.setIncomeDiv("퇴직연금");
-        incomeDeduction.setTotalAmount(1333333.333);
-        incomeDeductionList.add(4,incomeDeduction);
+        incomeDeduction.setMember(member);
+        incomeDeductionList.add(incomeDeduction);
+        IncomeDeduction incomeDeduction1 = new IncomeDeduction();
+        incomeDeduction1.setIncomeDiv("교육비");
+        incomeDeduction1.setAmount(200000);
+        incomeDeduction1.setMember(member);
+        incomeDeductionList.add(incomeDeduction1);
+        IncomeDeduction incomeDeduction2 = new IncomeDeduction();
+        incomeDeduction2.setIncomeDiv("기부금");
+        incomeDeduction2.setAmount(150000);
+        incomeDeduction2.setMember(member);
+        incomeDeductionList.add(incomeDeduction2);
+        IncomeDeduction incomeDeduction3 = new IncomeDeduction();
+        incomeDeduction3.setIncomeDiv("의료비");
+        incomeDeduction3.setAmount(700000);
+        incomeDeduction3.setMember(member);
+        incomeDeductionList.add(incomeDeduction3);
+        IncomeDeduction incomeDeduction4 = new IncomeDeduction();
+        incomeDeduction4.setIncomeDiv("퇴직연금");
+        incomeDeduction4.setTotalAmount(1333333.333);
+        incomeDeduction4.setMember(member);
+        incomeDeductionList.add(incomeDeduction4);
 
         List<Salary> salaryList = new ArrayList<>();
         Salary salary = new Salary();
 
-        salary.setUserId(userId);
+        salary.setUserId(member.getUserId());
         salary.setIncomeDetails("급여");
-        salary.setTotalPayment(30000000);
+        salary.setTotalIncome(30000000);
         salary.setWorkStartDate("20221002");//20221002
         salary.setCompany("(주)활빈당");
-        salary.setName("홍길동");
+        salary.setName(member.getName());
         salary.setPayDate("20201102");
         salary.setWorkEndDate("20211102");
-        salary.setRegNo("860824-1655068");
+        salary.setRegNo(member.getRegNo());
         salary.setIncomeDiv("근로소득(연간)");
         salary.setBusinessRegNo("012-34-56789");
+        salary.setMember(member);
 
         salaryList.add(salary);
 

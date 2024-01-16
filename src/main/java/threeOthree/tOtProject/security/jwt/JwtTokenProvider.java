@@ -42,10 +42,13 @@ public class JwtTokenProvider {
     // JWT 토큰 생성
 //    public String createToken(String userPK, Role roles) {
     public String createToken(Member member) {
-        Claims claims = Jwts.claims().setSubject(member.getName()); // JWT payload에 저장되는 정보 단위
-        log.info("member.getRegNo() 복호화 전: "+ member.getRegNo());
-        String st = member.getRegNo();
 
+        Claims claims = Jwts.claims().setSubject(member.getName()); // JWT payload에 저장되는 정보 단위
+        claims.setId(member.getUserId());
+        log.info("member.getRegNo() 복호화 전: "+ member.getRegNo());
+        log.info("member.getUserId: "+member.getUserId() );
+
+        claims.put("userId", member.getUserId());
         claims.put("regNo", member.getRegNo());
 
         //claims.put("roles", roles); // 정보 저장 (key-value)
@@ -70,10 +73,12 @@ public class JwtTokenProvider {
         Map<String, Object>  map = new HashMap<>();
         String name = Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().getSubject();
         String regNo = (String) Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("regNo");
-        log.info("regNo = " + regNo);
+        String userId = (String) Jwts.parser().setSigningKey(secretKey).parseClaimsJws(token).getBody().get("userId");
+
+        //log.info("regNo = " + regNo);
         map.put("regNo", regNo);
         map.put("name", name);
-
+        map.put("userId", userId);
         return map;
     }
     public String getUserPK(String token) {

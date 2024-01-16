@@ -23,19 +23,17 @@ public class MemberRepository {
                 .getResultList();
     }
 
-    public List<Member> findMember(Member member) {
+    public List<Member> findMemberByName(Member member) {
         return em.createQuery("select m from Member m where m.name = :name")
                 .setParameter("name", member.getName())
                 .getResultList();
     }
 
-    public List<Member> findById(String userId) {
-        return em.createQuery("select m.id from Member m where m.userId = :userId")
+    public List<Member> findByUserId(String userId) {
+        return em.createQuery("select m from Member m where m.userId = :userId")
                 .setParameter("userId", userId)
                 .getResultList();
     }
-
-
 
     public List<Member> login(String userId) {
         return em.createQuery("select m from Member m where m.userId = :userId")

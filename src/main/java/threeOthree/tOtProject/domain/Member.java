@@ -2,6 +2,7 @@ package threeOthree.tOtProject.domain;
 
 import javax.persistence.*;
 
+import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -13,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class  Member{
     @Id @GeneratedValue
     @Column(name = "member_id")
+    @ApiModelProperty(hidden = true)
     private long id;
     @Column(name="user_id")
     private String userId;

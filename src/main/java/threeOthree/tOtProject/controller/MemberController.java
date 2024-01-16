@@ -19,7 +19,10 @@ import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import threeOthree.tOtProject.Util.PasswordUtility;
 import threeOthree.tOtProject.domain.Member;
+import threeOthree.tOtProject.domain.Refund;
+import threeOthree.tOtProject.domain.info.MemberInfo;
 import threeOthree.tOtProject.security.Service.SecurityUserService;
 import threeOthree.tOtProject.security.jwt.JwtAuthenticationFilter;
 import threeOthree.tOtProject.security.jwt.JwtTokenProvider;
@@ -30,6 +33,7 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 import java.util.logging.Logger;
@@ -46,21 +50,9 @@ public class MemberController {
     private final InfoService infoService;
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
+    private final PasswordUtility utility;
 
-    @ApiOperation(value = "test", notes = "test")
-    @PostMapping("/szs/test")
-    public ResponseEntity<Integer> add (
-            @ApiParam(value="1번 값", required = true, example = "1")
-            @RequestParam(value="num1", required = true) int num1,
-            @ApiParam(value="2번 값", required = true, example = "2")
-            @RequestParam(value="num2", required = true)int num2
-    ) {
-        int sum = num1 + num2;
-
-        return ResponseEntity.ok(sum);
-    }
-
-    @ApiOperation(value="회원가입", notes="회원가입 기능")
+    @ApiOperation(value="1.회원가입", notes="회원가입 기능")
     @PostMapping("/szs/signup")
     public ResponseEntity<Member> save(@ApiParam(example = "member") Member member) {
         //암호화
@@ -70,7 +62,7 @@ public class MemberController {
         return new ResponseEntity<Member>(memberService.join(member), HttpStatus.OK);
     }
 
-    @ApiOperation(value="로그인", notes="로그인 기능")
+    @ApiOperation(value="2.로그인", notes="로그인 기능")
     @PostMapping("/szs/login")
     public ResponseEntity<String> login(
             @ApiParam(value="아이디",required = true, example = "userId")
@@ -86,7 +78,7 @@ public class MemberController {
         return new ResponseEntity<String>(jwt,httpHeaders, HttpStatus.OK);
     }
 
-    @ApiOperation(value="토큰발급확인", notes="토큰 기능")
+    @ApiOperation(value="3.토큰발급확인", notes="토큰 기능")
     @GetMapping("/szs/me")
     public ResponseEntity<Boolean> token(
             @ApiParam(value="토큰",required = true, example = "token")
@@ -103,16 +95,22 @@ public class MemberController {
         return new ResponseEntity<Boolean> (validateToken2, httpHeaders, HttpStatus.OK);
     }
 
-    @ApiOperation(value="토큰으로 정보 가져오기", notes="토큰 정보 가져오기")
-    @GetMapping("/szs/scrap")
+    @ApiOperation(value="4.가입한 유저의 정보 스크랩", notes="가입한 유저의 정보 스크랩")
+    @PostMapping("/szs/scrap")
     public ResponseEntity<Map<String, Object>> tokenScrap(
             @ApiParam(value="토큰",required = true, example = "token")
             @RequestParam(value="token", required = true) String token){
 
-        //String tokenAuth = String.valueOf(jwtTokenProvider.getAuthentication(token));
         Map<String, Object> tokenInfo = jwtTokenProvider.getUserPKList(token);
-        tokenInfo.replace("regNo", memberService.decrypt((String) tokenInfo.get("regNo")));
-        log.info("tokenInfo = " + tokenInfo);
+        tokenInfo.replace("regNo", utility.decrypt((String) tokenInfo.get("regNo")));
+
+        List<Member> memberList = memberService.findMemberByUserId((String) tokenInfo.get("userId"));
+
+        List<MemberInfo> memberInfos = null;
+
+        if(!memberList.isEmpty()){
+            memberInfos = infoService.findMemberInfo(memberList.get(0));
+        }
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER, "Bearer JwtToken " + token);
@@ -120,13 +118,25 @@ public class MemberController {
         return new ResponseEntity<Map<String, Object>> (tokenInfo, httpHeaders, HttpStatus.OK);
     }
 
-    @ApiOperation(value="데이터 저장하기", notes="데이터 저장하기")
-    @GetMapping("/szs/save")
-    public ResponseEntity<String> save(
-            @ApiParam(value="아이디",required = true, example = "userId")
-            @RequestParam(value="userId", required = true) String userId){
-        infoService.saveDummyData(userId);
-        return new ResponseEntity<String>("", HttpStatus.OK);
+
+    @ApiOperation(value="5.퇴직연금세액공제금액 계산", notes="퇴직연금세액공제금액 계산")
+    @GetMapping("/szs/refund")
+    public ResponseEntity<Refund> save(
+            @ApiParam(value="토큰",required = true, example = "token")
+            @RequestParam(value="token", required = true) String token){
+        int tax = 0;
+        List<MemberInfo> memberInfos = null;
+        Map<String, Object> tokenInfo = jwtTokenProvider.getUserPKList(token);
+        List<Member> memberList = memberService.findMemberByUserId((String) tokenInfo.get("userId"));
+        Refund refund = new Refund();
+
+        if(!memberList.isEmpty()){
+            memberInfos = infoService.findMemberInfo(memberList.get(0));
+            refund = infoService.calculateTaxAmount(memberInfos.get(0));
+            log.info("tax : "+tax);
+        }
+
+        return new ResponseEntity<Refund>(refund, HttpStatus.OK);
     }
 
 

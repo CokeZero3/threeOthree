@@ -3,18 +3,14 @@ package threeOthree.tOtProject.service;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import threeOthree.tOtProject.Util.PasswordUtility;
 import threeOthree.tOtProject.domain.Member;
 import threeOthree.tOtProject.repository.MemberRepository;
 import threeOthree.tOtProject.security.jwt.JwtTokenProvider;
 
-import javax.management.relation.Role;
-import java.nio.ByteBuffer;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -28,10 +24,10 @@ public class MemberService {
 
     @Autowired
     private final MemberRepository memberRepository;
-    private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider jwtTokenProvider;
-    private final AesBytesEncryptor encryptor;
-
+    private final InfoService infoService;
+    @Autowired
+    private PasswordUtility utility;
     //회원가입
     @Transactional
     public Member join(Member member){
@@ -41,16 +37,29 @@ public class MemberService {
         validateDuplicateId(member);      //중복 아이디 validation
 
         log.info("3.주민번호 인코딩 전 = " + member.getRegNo());
-        member.setRegNo(encrpyt(member.getRegNo()));
+        member.setRegNo(utility.encrpyt(member.getRegNo()));
         log.info("3.주민번호 인코딩 후 = " + member.getRegNo());
-        log.info("4.주민번호 디코딩 후 = " + decrypt(member.getRegNo()));
-
+        log.info("4.주민번호 디코딩 후 = " + utility.decrypt(member.getRegNo()));
         memberRepository.save(member);
+
+        List<Member> memberList = memberRepository.findByUserId(member.getUserId());
+        System.out.println("memberList = " + memberList);
+
+        if(!memberList.isEmpty()){
+            Member mem = memberList.get(0);
+            //해당 데이터 저장
+            infoService.saveDummyData(mem);
+        }
+
         return member;
     }
 
     public List<Member> findAll(){
         return memberRepository.findAll();
+    }
+
+    public List<Member> findMemberByUserId(String userId){
+        return  memberRepository.findByUserId(userId);
     }
 
     /**
@@ -62,7 +71,7 @@ public class MemberService {
         log.info("loginMember = " + loginMember.get(0).getPassword());
         log.info("password = " + password);
 
-        boolean loginChk = checkEncoding(password, loginMember.get(0).getPassword());
+        boolean loginChk = utility.checkEncoding(password, loginMember.get(0).getPassword());
         log.info("loginChk = " + loginChk);
         if(!loginChk){
             throw new IllegalStateException(" 아이디(로그인 전용 아이디) 또는 비밀번호를 잘못 입력했습니다.\n" +
@@ -74,10 +83,10 @@ public class MemberService {
 
     //회원가입 validations
     public void validateDuplicateMember(Member member){
-        List<Member> memberList = memberRepository.findMember(member);
+        List<Member> memberList = memberRepository.findMemberByName(member);
         Boolean checkRegNo = null;
         for(Member mem : memberList){
-            checkRegNo = checkEncoding(member.getRegNo(), mem.getRegNo());
+            checkRegNo = utility.checkEncoding(member.getRegNo(), mem.getRegNo());
         }
 
         if(!memberList.isEmpty() || Boolean.TRUE.equals(checkRegNo)){
@@ -87,7 +96,7 @@ public class MemberService {
 
     //아이디 중복 체크
     public void validateDuplicateId(Member member){
-        List<Member> memberList = memberRepository.findById(member.getUserId());
+        List<Member> memberList = memberRepository.findByUserId(member.getUserId());
 
         if(!memberList.isEmpty()){
             throw new IllegalStateException("이미 존재하는 아이디입니다.");
@@ -122,40 +131,6 @@ public class MemberService {
         if(!check){
             throw new IllegalStateException("허가 명단에 없는 이름과 주민번호입니다.");
         }
-    }
-
-    public boolean checkEncoding(String decode, String encode){
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-        return passwordEncoder.matches(decode, encode);
-    }
-
-    public String encrpyt(String plainString){
-        byte[] encrypt = encryptor.encrypt(plainString.getBytes(StandardCharsets.UTF_8));
-        return byteArrayToString(encrypt);
-
-    }
-    public String decrypt(String decryptString) {
-        byte[] decryptBytes = stringToByteArray(decryptString);
-        byte[] decrypt = encryptor.decrypt(decryptBytes);
-        return new String(decrypt, StandardCharsets.UTF_8);
-    }
-
-    public String byteArrayToString(byte[] bytes) {
-        StringBuilder sb = new StringBuilder();
-        for (byte abyte :bytes){
-            sb.append(abyte);
-            sb.append(" ");
-        }
-        return sb.toString();
-    }
-
-    public byte[] stringToByteArray(String byteString) {
-        String[] split = byteString.split("\\s");
-        ByteBuffer buffer = ByteBuffer.allocate(split.length);
-        for (String s : split) {
-            buffer.put((byte) Integer.parseInt(s));
-        }
-        return buffer.array();
     }
 
 }

@@ -25,7 +25,7 @@ public class Salary {
     @JoinColumn(name = "member_id")
     private Member member;
     private String incomeDetails;//소득내역
-    private int totalPayment;//총지급액
+    private int totalIncome;//총지급액
     private String workStartDate;//업무시작일
     private String company;//기업명
     private String name;//이름
