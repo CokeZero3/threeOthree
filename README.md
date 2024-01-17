@@ -36,3 +36,13 @@ UI를 제외하고 간소화된 REST API만 구현하시면 됩니다.
     - 로그인은 userId로 DB 정보를 조회합니다. 조회된 데이터와 입력 데이터를 서비스에서 passwordEncoder.matches을 사용해 비밀번호가 일치하는지 확인합니다.<br/> 
   4. 발급된 토큰으로 토큰 발급 확인 후 해당 회원의 정보를 읽어옵니다.
   5. 토큰으로 조회된 정보로 결정 세액과 퇴직연금세액공제금액 계산을 합니다.
+
+#계산 확인
+
+        {
+          "name": "김둘리",
+          "totalTaxAmount": 5500,
+          "pensionTaxCredit": 199999
+        }
+<img width="550" alt="image" src="https://github.com/CokeZero3/threeOthree/assets/60252095/437bd5eb-6416-41cf-be23-eff9556277c6">
+
