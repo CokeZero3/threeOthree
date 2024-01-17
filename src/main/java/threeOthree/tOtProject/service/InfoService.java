@@ -67,13 +67,13 @@ public class InfoService {
         int taxAmount = 0; //결정세액
 
         int calcTaxAmount = memberInfo.getCalcTaxAmount(); //산출세액
-        double incomTaxCredit = calcTaxAmount*.55; //근로소득세액공제금액 = 산출세액 * 0.55
+        double incomeTaxCredit = calcTaxAmount*.55; //근로소득세액공제금액 = 산출세액 * 0.55
 
-        double retCredit = 0; //퇴직연금세액공제금액 = 퇴직연금 납입금액 * 0.15
-        double insCredit = 0; //보험료공제금액 = 보험료납입금액 * 12%
-        double medCredit = 0; //의료비공제금액 = (의료비납입금액 - 총급여 * 3%) * 15%
-        double eduCredit = 0; //교육비공제금액 = 교육비납입금액 * 15%
-        double donationCredit = 0; //기부금공제금액 = 기부금납입금액 * 15%
+        double retCredit = 0; //퇴직연금세액공제금액 
+        double insCredit = 0; //보험료공제금액 
+        double medCredit = 0; //의료비공제금액 
+        double eduCredit = 0; //교육비공제금액 
+        double donationCredit = 0; //기부금공제금액
 
         int totalIncome = 0; //총급여
 
@@ -91,10 +91,21 @@ public class InfoService {
             }
 
         }
+        System.out.println("계산전====================");
+        System.out.println("incomeTaxCredit = " + incomeTaxCredit);
+        System.out.println("totalIncome = " + totalIncome);
+        System.out.println("calcTaxAmount = " + calcTaxAmount); //60 * 0.55 = 181,500
+        System.out.println("insCredit = " + insCredit); //100,000 * 0.12 = 1440
+        System.out.println("medCredit = " + medCredit); //(700000-30000000)*0.03 = = -131850 = 0
+        System.out.println("eduCredit = " + eduCredit); // 200,000 * 0.15 =	30000	4500
+        System.out.println("donationCredit = " + donationCredit);
+        System.out.println("retCredit = " + retCredit);
+        System.out.println("계산전====================");
+
         if(insCredit!=0){insCredit = insCredit*.12;} //보험료공제금액 = 보험료납입금액 * 12%
 
-        if(medCredit<0){medCredit=0;} //의료비공제금액 < 0 일 경우, 의료비공제금액 = 0 처리 한다.
-        else{medCredit = (medCredit - totalIncome * .03) * .15;};//의료비공제금액 = (의료비납입금액 - 총급여 * 3%) * 15%
+        if(medCredit!=0){medCredit = (medCredit - totalIncome * .03) * .15;} //의료비공제금액 < 0 일 경우, 의료비공제금액 = 0 처리 한다.
+        if(medCredit<0){medCredit=0;}//의료비공제금액 = (의료비납입금액 - 총급여 * 3%) * 15%
 
         if(eduCredit!=0){eduCredit = eduCredit*.15;}//교육비공제금액 = 교육비납입금액 * 15%
 
@@ -104,30 +115,25 @@ public class InfoService {
 
         //특별세액공제금액 = 보험료공제금액, 의료비공제금액, 교육비공제금액, 기부금공제금액
         int specialCredit = (int) (insCredit + medCredit + eduCredit + donationCredit);
-        System.out.println("specialCredit = " + specialCredit);
-        /**
-        표준세액공제금액
-        특별세액공제금액의 합 < 130,000 이면 표준세액공제금액 = 130,000원
-        특별세액공제금액의 합 >= 130,000 이면 표준세액공제금액 = 0
-        단, 표준세액공제금액 = 130,000원이면 특별세액공제금액 = 0 처리 한다.
-        결정세액 < 0 인 경우, 결정세액 = 0 처리 한다.
-        */
-
         int standardTax = 0;//표준세액공제금액
 
-        if(specialCredit < 130000){
+        System.out.println("specialCredit = " + specialCredit);
+        if(specialCredit > 130000){
             standardTax = 130000;
-        } else if(specialCredit >= 130000){
+            System.out.println("?standardTax = " + standardTax);
+        } else if(specialCredit <= 130000 ){
             standardTax = 0;
         }
 
-        if(standardTax == 130000){
-            specialCredit = 0;
-        }
+        if(standardTax==130000){specialCredit=0;}
 
         //결정세액 = 산출세액 - 근로소득세액공제금액 - 특별세액공제금액 - 표준세액공제금액 - 퇴직연금세액공제금액;
-        taxAmount = (int) (calcTaxAmount - incomTaxCredit - specialCredit - standardTax - retCredit);
-        System.out.println("taxAmount = " + taxAmount);
+        taxAmount = (int) (calcTaxAmount - incomeTaxCredit - specialCredit - standardTax - retCredit);
+        System.out.println("====결정세액 숫자들====");
+        System.out.println("calcTaxAmount : "+calcTaxAmount+" ,incomeTaxCredit : "+incomeTaxCredit+" " +
+                ",specialCredit="+ specialCredit+", standardTax : "+standardTax + ", retCredit : "+retCredit);
+        System.out.println("====결정세액 숫자들====");
+
         if(taxAmount<0){
             taxAmount=0;
         }
@@ -135,7 +141,20 @@ public class InfoService {
         refund.setName(salaryList.get(0).getName());
         refund.setTotalTaxAmount(taxAmount);
         refund.setPensionTaxCredit((int) retCredit);
+
+
+        System.out.println("계산후====================");
+        System.out.println("calcTaxAmount = " + calcTaxAmount); //산출세액 60 * 0.55 = 181,500
+        System.out.println("incomeTaxCredit = " + incomeTaxCredit); //근로소득
+        System.out.println("totalIncome = " + totalIncome); //총수입
+        System.out.println("insCredit = " + insCredit); //100,000 * 0.12 = 1440
+        System.out.println("medCredit = " + medCredit); //(700000-30000000)*0.03 = = -131850 = 0
+        System.out.println("eduCredit = " + eduCredit); // 200,000 * 0.15 =	30000	4500
+        System.out.println("donationCredit = " + donationCredit);
+        System.out.println("retCredit = " + retCredit);
         System.out.println("standardTax = " + standardTax);
+        System.out.println("taxAmount = " + taxAmount);
+        System.out.println("계산후====================");
 
         return refund;
     }

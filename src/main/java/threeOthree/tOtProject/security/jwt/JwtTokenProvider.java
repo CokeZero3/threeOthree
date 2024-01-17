@@ -1,9 +1,7 @@
 package threeOthree.tOtProject.security.jwt;
 
-import com.nimbusds.jose.crypto.PasswordBasedDecrypter;
 import io.jsonwebtoken.*;
 import io.jsonwebtoken.security.SecurityException;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -11,12 +9,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.crypto.encrypt.AesBytesEncryptor;
-import org.springframework.security.crypto.factory.PasswordEncoderFactories;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 import threeOthree.tOtProject.domain.Member;
-import threeOthree.tOtProject.security.config.SecurityConfig;
 import threeOthree.tOtProject.service.MemberService;
 
 import javax.servlet.http.HttpServletRequest;
