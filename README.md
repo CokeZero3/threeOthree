@@ -44,5 +44,6 @@ UI를 제외하고 간소화된 REST API만 구현하시면 됩니다.
           "totalTaxAmount": 5500, //결정세액 
           "pensionTaxCredit": 199999 //퇴직연금세액공제금액
         }
-<img width="550" alt="image" src="https://github.com/CokeZero3/threeOthree/assets/60252095/437bd5eb-6416-41cf-be23-eff9556277c6">
+<img width="552" alt="image" src="https://github.com/CokeZero3/threeOthree/assets/60252095/0c4d1e12-03e4-456d-bc4c-1d21a3440e21">
+
 
