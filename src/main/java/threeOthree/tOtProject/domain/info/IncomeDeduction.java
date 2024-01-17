@@ -6,7 +6,6 @@ import org.hibernate.annotations.ColumnDefault;
 import threeOthree.tOtProject.domain.Member;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 

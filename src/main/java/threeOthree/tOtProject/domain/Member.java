@@ -5,7 +5,6 @@ import javax.persistence.*;
 import io.swagger.annotations.ApiModelProperty;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Entity
 @Getter

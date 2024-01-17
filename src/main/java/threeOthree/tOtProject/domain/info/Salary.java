@@ -1,13 +1,10 @@
 package threeOthree.tOtProject.domain.info;
 
-import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
 import lombok.Setter;
 import threeOthree.tOtProject.domain.Member;
 
 import javax.persistence.*;
-import java.time.LocalDateTime;
-import java.util.Date;
 
 @Entity
 @Getter@Setter

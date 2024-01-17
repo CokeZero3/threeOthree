@@ -8,7 +8,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -68,7 +67,6 @@ public class MemberController {
 
         boolean validateToken = jwtTokenProvider.validateToken(token);
         boolean validateToken2 = jwtTokenProvider.validateToken(token);
-        //log.info("validateToken2 = " + validateToken2);
 
         HttpHeaders httpHeaders = new HttpHeaders();
         httpHeaders.add(JwtAuthenticationFilter.AUTHORIZATION_HEADER, "Bearer JwtToken " + token);
@@ -114,7 +112,6 @@ public class MemberController {
         if(!memberList.isEmpty()){
             memberInfos = infoService.findMemberInfo(memberList.get(0));
             refund = infoService.calculateTaxAmount(memberInfos.get(0));
-            //log.info("tax : "+tax);
         }
 
         return new ResponseEntity<Refund>(refund, HttpStatus.OK);

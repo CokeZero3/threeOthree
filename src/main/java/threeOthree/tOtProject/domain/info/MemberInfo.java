@@ -2,21 +2,17 @@ package threeOthree.tOtProject.domain.info;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.Getter;
-import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import threeOthree.tOtProject.domain.Member;
-import threeOthree.tOtProject.service.MemberService;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 @Entity
 @Getter@Setter
 @Table(name="member_info")
-//@NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class MemberInfo {
     @Id
     @Column(name="info_id")
